@@ -6,13 +6,15 @@ public class GraphicalImgurRequest extends ImgurRequest{
 	private Point point = new Point(0, 0);
 	private Point desiredPoint = new Point(0, 0);
 	private double progress = 0;
+	private double scanProgress = 0;
+	private ImageListener listener;
 	
-	public GraphicalImgurRequest(double x1, double y1, double x2, double y2) {
+	public GraphicalImgurRequest(double x1, double y1, double x2, double y2, ImageListener listener) {
+		super(listener);
 		point.x = x1;
 		point.y = y1;
 		desiredPoint.x = x2;
 		desiredPoint.y = y2;
-		
 		
 	}
 	
@@ -33,10 +35,14 @@ public class GraphicalImgurRequest extends ImgurRequest{
 		
 		point.x = x;
 		point.y = y;
-		
+
 		double newProgress = getProgress();
 		if(newProgress == newProgress)
 		progress -= (progress - newProgress) / 8d;
+		
+		double newScanProgress = getScanProgress();
+		if(newScanProgress == newScanProgress)
+		scanProgress -= (scanProgress - newScanProgress) / 8d;
 		
 	}
 	
@@ -47,17 +53,21 @@ public class GraphicalImgurRequest extends ImgurRequest{
 			this.y = y;
 		}
 	}
-	
+	public final static int WIDTH = 100;
 	public void draw(Graphics2D g) {
-		final int WIDTH = 300;
+		
 		
 		int XOFF = (int)(point.x);
 		int YOFF = (int)(point.y);
 		
 		FontMetrics metrics = g.getFontMetrics();
 		
-		g.setColor(Color.BLACK);
-		g.fillRect(XOFF, YOFF + 13, (int) (WIDTH * progress), 20);
+		//the bar
+		g.setColor(new Color(150, 150, 150));
+		g.fillRect(XOFF, YOFF + 13, (int) (WIDTH * scanProgress) + 1, 20);
+		g.drawRect(XOFF, YOFF + 13, WIDTH, 20);
+		g.setColor(new Color(70, 70, 70));
+		g.fillRect(XOFF, YOFF + 13, (int) (WIDTH * progress) + 1, 20);
 		g.drawRect(XOFF, YOFF + 13, WIDTH, 20);
 
 		//total images
