@@ -2,6 +2,11 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
+/**
+ * 
+ * @author Marcus
+ *
+ */
 public class GraphicalImgurRequest extends ImgurRequest{
 	private Point point = new Point(0, 0);
 	private Point desiredPoint = new Point(0, 0);

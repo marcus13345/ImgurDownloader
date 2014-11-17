@@ -19,6 +19,11 @@ import javax.imageio.ImageIO;
 import MAndEngine.BasicApp;
 import MAndEngine.Engine;
 
+/**
+ * 
+ * @author Marcus
+ *
+ */
 public class ImgurDownloader implements BasicApp, ImageListener{
 
 	private ArrayList<GraphicalImgurRequest> requests;

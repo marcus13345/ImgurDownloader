@@ -6,6 +6,11 @@ import java.util.Scanner;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+/**
+ * 
+ * @author Marcus
+ *
+ */
 public class ListHelper {
 	public static final String listFilePath = System.getenv("APPDATA") + "\\MAndWorks\\Imgur\\settings\\list.txt";
 	

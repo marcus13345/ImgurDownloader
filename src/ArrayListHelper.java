@@ -1,6 +1,10 @@
 import java.util.ArrayList;
 
-
+/**
+ * 
+ * @author Marcus
+ *
+ */
 public class ArrayListHelper {
 	public static String[] toArray(ArrayList<String> list) {
 		String[] array = new String[list.size()];
