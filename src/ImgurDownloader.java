@@ -1,3 +1,7 @@
+import imgurlibrary.ImageListener;
+import imgurlibrary.ImgurRequest;
+import imgurlibrary.SubredditRequest;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -17,7 +21,14 @@ import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
+import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.WString;
+import com.sun.jna.ptr.PointerByReference;
+
 import MAndEngine.BasicApp;
+import MAndEngine.Button;
 import MAndEngine.Engine;
 
 /**
@@ -67,6 +78,11 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 	 */
 	private final Font font = new Font("Arial", Font.BOLD, 30);
 
+	/**
+	 * settings button
+	 */
+	private Button settings;
+	
 	@Override
 	public Dimension getResolution() {
 		return new Dimension(WIDTH, HEIGHT);
@@ -75,13 +91,17 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 	@Override
 	public void initialize() {
 
+		settings = new Button(0, new Color(230, 230, 230), WIDTH - 150, 20, 130, 50, "Settings", 10, 10, true);
+		
+		setCurrentProcessExplicitAppUserModelID("MAndWorks.ImgurDownloader.ImgurDownloader.2.0.0.0");
+
+	    // System.out.println(getCurrentProcessExplicitAppUserModelID());
+
 		requests = new ArrayList<GraphicalImgurRequest>();
 		try {
-			image = ImageIO.read(this.getClass().getClassLoader()
-					.getResourceAsStream("start.png"));
+			image = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("start.png"));
 		} catch (Exception e) {
 			image = null;
-			System.out.println("eakljrfgskldhfg");
 		}
 
 	}
@@ -103,8 +123,7 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 		int GAP = GraphicalImgurRequest.WIDTH + LEFT_MARGIN;
 
 		for (int i = 0; i < requests.size(); i++) {
-			requests.get(i).setDestination(LEFT_MARGIN + (GAP * i),
-					HEIGHT - BOTTOM_HEIGHT + TOP_MARGIN);
+			requests.get(i).setDestination(LEFT_MARGIN + (GAP * i), HEIGHT - BOTTOM_HEIGHT + TOP_MARGIN);
 			requests.get(i).tick();
 		}
 
@@ -120,6 +139,8 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 			execute(textBox);
 			textBox = "";
 		}
+		
+		settings.poll();
 	}
 
 	private void execute(String str) {
@@ -127,34 +148,27 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 		if (parts[0].equalsIgnoreCase("load")) {
 			loadScript(parts[1]);
 		} else if (parts[0].equalsIgnoreCase("user")) {
-			GraphicalImgurRequest request = new GraphicalImgurRequest(
-					(int) (WIDTH * 1.2d), HEIGHT - BOTTOM_HEIGHT + TOP_MARGIN,
-					0, 0, this);
-			int pages = 0;
-			try {
-				pages = Integer.parseInt(parts[2]);
-			} catch (Exception e) {
-			}
-			request.saveSubmitted(parts[1], pages == 0 ? 10 : pages);
-			requests.add(request);
+
 		} else {
 			// assume subreddit
-			GraphicalImgurRequest request = new GraphicalImgurRequest(
-					(int) (WIDTH * 1.2d), HEIGHT - BOTTOM_HEIGHT + TOP_MARGIN,
-					0, 0, this);
-			int pages = 0;
+			GraphicalImgurRequest greq;
+			ImgurRequest req;
+			int pages;
 			try {
 				pages = Integer.parseInt(parts[1]);
 			} catch (Exception e) {
+				pages = 10;
 			}
-			request.saveSubreddit(parts[0], pages == 0 ? 10 : pages, "time");
-			requests.add(request);
+
+			req = new SubredditRequest(parts[0], pages, true, this);
+			// TODO make these positions variables bc vars
+			greq = new GraphicalImgurRequest((int) (WIDTH * 1.2d), HEIGHT - BOTTOM_HEIGHT + TOP_MARGIN, 0, 0, req);
+			requests.add(greq);
 		}
 	}
 
 	private void loadScript(String script) {
-		File file = new File(System.getenv("APPDATA")
-				+ "\\MAndWorks\\ImgurDownloader\\scripts\\" + script + ".lst");
+		File file = new File(System.getenv("APPDATA") + "\\MAndWorks\\ImgurDownloader\\scripts\\" + script + ".lst");
 		try {
 			Scanner scan = new Scanner(file);
 			while (scan.hasNextLine()) {
@@ -205,10 +219,10 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 		g.setFont(font);
 		g.setColor(new Color(70, 70, 70));
 		// TODO filepath variable and stufffffff ya
-		g.drawString("> " + textBox
-				+ ((System.currentTimeMillis() / 1000) % 2 == 0 ? "I" : ""),
-				80, 28);
+		g.drawString("> " + textBox + ((System.currentTimeMillis() / 1000) % 2 == 0 ? "I" : ""), 80, 28);
 
+		settings.render(g);
+		
 	}
 
 	private Color rgb(int r, int g, int b) {
@@ -274,7 +288,7 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 	}
 
 	@Override
-	public void newImage(BufferedImage image) {
+	public void sendImage(BufferedImage image) {
 
 		try {
 			image = fitImageScale(image, INNER_FRAME_WIDTH, INNER_FRAME_HEIGHT);
@@ -285,8 +299,7 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 
 	}
 
-	private static BufferedImage fitImageScale(BufferedImage image, int width,
-			int height) throws IOException {
+	private static BufferedImage fitImageScale(BufferedImage image, int width, int height) throws IOException {
 
 		int imageWidth = image.getWidth();
 		int imageHeight = image.getHeight();
@@ -302,33 +315,51 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 			scaleY = scaleX;
 
 		// give us the transform object thing
-		AffineTransform scaleTransform = AffineTransform.getScaleInstance(
-				scaleX, scaleY);
+		AffineTransform scaleTransform = AffineTransform.getScaleInstance(scaleX, scaleY);
 
 		// then make the scaling algorithm thing.
-		AffineTransformOp bilinearScaleOp = new AffineTransformOp(
-				scaleTransform, AffineTransformOp.TYPE_BILINEAR);
+		AffineTransformOp bilinearScaleOp = new AffineTransformOp(scaleTransform, AffineTransformOp.TYPE_BILINEAR);
 
 		// out new image that we need to crop onto the buffer with the right
 		// dimensions.
-		BufferedImage newImage = bilinearScaleOp.filter(image,
-				new BufferedImage((int) (imageWidth * scaleX),
-						(int) (imageHeight * scaleY), image.getType()));
+		BufferedImage newImage = bilinearScaleOp.filter(image, new BufferedImage((int) (imageWidth * scaleX), (int) (imageHeight * scaleY), image.getType()));
 
 		// make the buffer
-		BufferedImage buffer = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_ARGB);
+		BufferedImage buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = buffer.getGraphics();
 
 		int newImageWidth = newImage.getWidth(null);
 		int newImageHeight = newImage.getHeight(null);
 
 		// do math, shove it on.
-		g.drawImage(newImage, (width - newImageWidth) / 2,
-				(height - newImageHeight) / 2, null);
+		g.drawImage(newImage, (width - newImageWidth) / 2, (height - newImageHeight) / 2, null);
 
 		// return dat
 		return buffer;
 	}
 
+	public static void setCurrentProcessExplicitAppUserModelID(final String appID) {
+		if (SetCurrentProcessExplicitAppUserModelID(new WString(appID)).longValue() != 0)
+			throw new RuntimeException("unable to set current process explicit AppUserModelID to: " + appID);
+	}
+
+	public static String getCurrentProcessExplicitAppUserModelID() {
+		final PointerByReference r = new PointerByReference();
+
+		if (GetCurrentProcessExplicitAppUserModelID(r).longValue() == 0) {
+			final Pointer p = r.getValue();
+
+			return p.getString(0, true); // here we leak native memory by
+											// lazyness
+		}
+		return "N/A";
+	}
+
+	private static native NativeLong GetCurrentProcessExplicitAppUserModelID(PointerByReference appID);
+
+	private static native NativeLong SetCurrentProcessExplicitAppUserModelID(WString appID);
+
+	static {
+		Native.register("shell32");
+	}
 }
