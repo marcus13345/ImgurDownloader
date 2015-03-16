@@ -32,6 +32,12 @@ import MAndEngine.Button;
 import MAndEngine.Engine;
 
 /**
+ * Main class for the imgur downloader v2.0. is a basicapp (for compliance with my 
+ * engine) and image listener (so that it can recieve updates when a new image is
+ * downloaded). this class houses the main loop that ticks and renders everything in
+ * the scene, as well it takes in the key events from basicapp to type into the top
+ * bar.
+ * 
  * 
  * @author Marcus
  *
@@ -221,7 +227,7 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 		// TODO filepath variable and stufffffff ya
 		g.drawString("> " + textBox + ((System.currentTimeMillis() / 1000) % 2 == 0 ? "I" : ""), 80, 28);
 
-		settings.render(g);
+		//settings.render(g);
 		
 	}
 
@@ -280,7 +286,6 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 		HEIGHT = height;
 		INNER_FRAME_WIDTH = WIDTH;
 		INNER_FRAME_HEIGHT = HEIGHT - BOTTOM_HEIGHT - TOP_HEIGHT;
-
 	}
 
 	@Override

@@ -5,6 +5,11 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 /**
+ * this is a wrapper for imgur request. it simply takes any imgur request and
+ * makes it into a small rectangular progress bar with a title and other assorted bits.
+ * progress bar has two parts, scan progress and download progress. this can
+ * be rendered on the screen and you can preset where you want it to be so that 
+ * it animates for you, so long as you call tick each frame update.
  * 
  * @author Marcus
  *

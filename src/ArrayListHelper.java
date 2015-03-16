@@ -2,6 +2,9 @@ import java.util.ArrayList;
 
 /**
  * 
+ * this class is a simple static helper class with one job, to take arraylists
+ * of strings and make arrays out of them.
+ * 
  * @author Marcus
  *
  */
