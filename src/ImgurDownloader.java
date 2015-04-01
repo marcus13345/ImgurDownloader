@@ -367,4 +367,10 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 	static {
 		Native.register("shell32");
 	}
+
+	@Override
+	public void updateDimensions(int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
 }
