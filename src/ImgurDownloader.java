@@ -97,6 +97,8 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 	@Override
 	public void initialize() {
 
+		Engine.timeScale = .00005;
+		
 		settings = new Button(0, new Color(230, 230, 230), WIDTH - 150, 20, 130, 50, "Settings", 10, 10, true);
 		
 		setCurrentProcessExplicitAppUserModelID("MAndWorks.ImgurDownloader.ImgurDownloader.2.0.0.0");
@@ -263,11 +265,6 @@ public class ImgurDownloader implements BasicApp, ImageListener {
 	@Override
 	public Color getColor() {
 		return null;
-	}
-
-	@Override
-	public int getFramerate() {
-		return 30;
 	}
 
 	@Override

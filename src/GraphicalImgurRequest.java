@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
+import MAndEngine.Engine;
+
 /**
  * this is a wrapper for imgur request. it simply takes any imgur request and
  * makes it into a small rectangular progress bar with a title and other assorted bits.
@@ -47,19 +49,19 @@ public class GraphicalImgurRequest {
 		double x2 = desiredPoint.x;
 		double y2 = desiredPoint.y;
 
-		y -= (y - y2) / 8d;
-		x -= (x - x2) / 8d;
+		y -= ((y - y2) / 8d) * Engine.deltaTime;
+		x -= ((x - x2) / 8d) * Engine.deltaTime;
 
 		point.x = x;
 		point.y = y;
 
 		double newProgress = req.getProgress();
 		if (newProgress == newProgress)
-			progress -= (progress - newProgress) / 8d;
+			progress -= ((progress - newProgress) / 8d) * Engine.deltaTime;
 
 		double newScanProgress = req.getScanProgress();
 		if (newScanProgress == newScanProgress)
-			scanProgress -= (scanProgress - newScanProgress) / 8d;
+			scanProgress -= ((scanProgress - newScanProgress) / 8d) * Engine.deltaTime;
 
 	}
 
